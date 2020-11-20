@@ -1,0 +1,26 @@
+{*-------------------------------------------------------+
+| SYSTOPIA Rocketchat API Extension                      |
+| Copyright (C) 2020 SYSTOPIA                            |
+| Author: P. Batroff (batroff@systopia.de)               |
++--------------------------------------------------------+
+| This program is released as free software under the    |
+| Affero GPL license. You can redistribute it and/or     |
+| modify it under the terms of this license which you    |
+| can read by viewing the included agpl.txt or online    |
+| at www.gnu.org/licenses/agpl.html. Removal of this     |
+| copyright header is strictly prohibited without        |
+| written permission from the original author(s).        |
++-------------------------------------------------------*}
+
+
+{htxt id="id-rocketchatapi-server-url"}
+  <p>{ts domain="de.systopia.rocketchatapi"}URL of the rocketserver instance you want to connect to{/ts}</p>
+{/htxt}
+
+{htxt id="id-rocketchatapi-server-username"}
+  <p>{ts domain="de.systopia.rocketchatapi"}Username of authorized rocketchat account{/ts}</p>
+{/htxt}
+
+{htxt id="id-rocketchatapi-server-password"}
+  <p>{ts domain="de.systopia.rocketchatapi"}Password of authorized rocketchat account{/ts}</p>
+{/htxt}
