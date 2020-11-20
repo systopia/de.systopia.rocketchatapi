@@ -5,11 +5,11 @@ use Civi\Test\HookInterface;
 use Civi\Test\TransactionalInterface;
 
 /**
- * Rocketchat.Test API Test Case
+ * Rocketchat.Connect API Test Case
  * This is a generic test class implemented with PHPUnit.
  * @group headless
  */
-class api_v3_Rocketchat_TestTest extends \PHPUnit_Framework_TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {
+class api_v3_Rocketchat_ConnectTest extends \PHPUnit_Framework_TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {
   use \Civi\Test\Api3TestTrait;
 
   /**
@@ -43,7 +43,7 @@ class api_v3_Rocketchat_TestTest extends \PHPUnit_Framework_TestCase implements 
    * Note how the function name begins with the word "test".
    */
   public function testApiExample() {
-    $result = civicrm_api3('Rocketchat', 'Test', array('magicword' => 'sesame'));
+    $result = civicrm_api3('Rocketchat', 'Connect', array('magicword' => 'sesame'));
     $this->assertEquals('Twelve', $result['values'][12]['name']);
   }
 
