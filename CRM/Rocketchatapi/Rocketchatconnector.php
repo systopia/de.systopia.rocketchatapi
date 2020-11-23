@@ -28,11 +28,14 @@ class CRM_Rocketchatapi_Rocketchatconnector {
 
 
   /**
+   * CRM_Rocketchatapi_Rocketchatconnector constructor.
+   *  Sets default paramter for this class and performs a login with the configured credentials
+   *
    * @throws API_Exception
    */
   public function __construct() {
     if (!file_exists(__DIR__ . '/../../resources/lib/vendor/nategood/httpful/bootstrap.php')) {
-      throw new API_Exception("Httpful not available. Please go to resources/lib and install via composer");
+      throw new Exception("Httpful not available. Please go to resources/lib and install via composer");
     }
     require __DIR__ . '/../../resources/lib/vendor/nategood/httpful/bootstrap.php';
 
@@ -42,9 +45,19 @@ class CRM_Rocketchatapi_Rocketchatconnector {
     $this->password = $config->getSetting('rocketchat_pw');
 
     if (empty($this->api) || empty($this->username) || empty($this->password)) {
-      throw new API_Exception("Rocketchat Server parameters not configured. Aborting API call");
+      throw new Exception("Rocketchat Server parameters not configured. Aborting API call");
     }
     $this->login();
+  }
+
+
+  /**
+   * Destructor - Invalidate the current Rest Token
+   *  TODO: Is this needed every call?
+   * @throws \Httpful\Exception\ConnectionErrorException
+   */
+  public function __destruct() {
+    $logout = $this->execute("logout");
   }
 
 
@@ -69,7 +82,49 @@ class CRM_Rocketchatapi_Rocketchatconnector {
       $this->user_id = $response->body->data->userId;
       return;
     }
-    throw new API_Exception($response->body->message);
+    throw new Exception($response->body->message);
+  }
+
+
+  /**
+   * Executes generic rocket chat api call
+   * see https://docs.rocket.chat/api/rest-api
+   * @param $api
+   *  default api argument. Will be added to /api/v1/
+   *
+   * @param $params
+   *  JSON formated parameter array
+   *
+   * @return \Httpful\Response
+   *  Full Response object
+   * @throws \Httpful\Exception\ConnectionErrorException
+   */
+  public function execute($api, $params = NULL) {
+    if (empty($params)) {
+      return Request::get($this->api . $api)->send();
+    }
+    if (!$this->is_json($params)) {
+      throw new Exception("Parameter is is malformed. Not valid json");
+    }
+
+    $response = Request::post($this->api_root . $api)
+      ->body($params)
+      ->send();
+    return $response;
+  }
+
+  /**
+   * helper function
+   * determines if given string is JSON. Returns True when NULL
+   * @param $str
+   * @return bool
+   */
+  private function is_json($str) {
+    if ($str === NULL) {
+      return TRUE;
+    }
+    json_decode($str);
+    return (json_last_error() == JSON_ERROR_NONE);
   }
 
   /**
@@ -79,8 +134,5 @@ class CRM_Rocketchatapi_Rocketchatconnector {
     $response = \Httpful\Request::get( $this->api . 'info' )->send();
     return $response->body->info->version;
   }
-
-
-
 
 }
