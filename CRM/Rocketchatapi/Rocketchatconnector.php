@@ -32,6 +32,7 @@ class CRM_Rocketchatapi_Rocketchatconnector {
    *  Sets default paramter for this class and performs a login with the configured credentials
    *
    * @throws API_Exception
+   * @throws Exception
    */
   public function __construct() {
     if (!file_exists(__DIR__ . '/../../resources/lib/vendor/nategood/httpful/bootstrap.php')) {
@@ -57,13 +58,14 @@ class CRM_Rocketchatapi_Rocketchatconnector {
    * @throws \Httpful\Exception\ConnectionErrorException
    */
   public function __destruct() {
-    $logout = $this->execute("logout");
+    $this->execute_get("logout");
   }
 
 
   /**
    * Authenticate with the REST API.
    * @throws API_Exception
+   * @throws Exception
    */
   private function login() {
     $response = Request::post( $this->api . 'login' )
@@ -98,24 +100,64 @@ class CRM_Rocketchatapi_Rocketchatconnector {
    * @return \Httpful\Response
    *  Full Response object
    * @throws \Httpful\Exception\ConnectionErrorException
+   * @throws Exception
    */
-  public function execute($api, $params = NULL) {
-    if (empty($params)) {
-      return Request::get($this->api . $api)->send();
-    }
+  public function execute_post($api, $params) {
     if (!$this->is_json($params)) {
       throw new Exception("Parameter is is malformed. Not valid json");
     }
 
-    $response = Request::post($this->api_root . $api)
+    return Request::post($this->api_root . $api)
       ->body($params)
       ->send();
-    return $response;
   }
+
+  /**
+   * Execute a GET Request to Rocketchat api
+   * Params is optional, but if provided in addition to the api path they will be added
+   * See https://docs.rocket.chat/api/rest-api/query-and-fields-info for use cases
+   *
+   * @param $api
+   * @param null $params
+   *  array
+   * @return \Httpful\Response
+   * @throws \Httpful\Exception\ConnectionErrorException
+   */
+  public function execute_get($api, $params=NULL) {
+
+    $api_query = $this->api . $api;
+    if (!empty($params)) {
+      $api_query .= $this->build_query($params);
+    }
+    return Request::get($api_query)->send();
+  }
+
+  /**
+   * helper function to parse parameter array and format to meet requirements for
+   * Rocketchat query/field api
+   * https://docs.rocket.chat/api/rest-api/query-and-fields-info
+   *
+   * @param $params
+   * @return string
+   */
+  private function build_query($params) {
+    $first = TRUE;
+    $query = "?";
+    foreach ($params as $arg => $value) {
+      if(!$first) {
+        $query .= '&'; // more arguments coming
+      }
+      $query .= $arg . "=" . json_encode($value);
+      $first = FALSE;
+    }
+    return $query;
+  }
+
 
   /**
    * helper function
    * determines if given string is JSON. Returns True when NULL
+   *
    * @param $str
    * @return bool
    */
@@ -125,14 +167,6 @@ class CRM_Rocketchatapi_Rocketchatconnector {
     }
     json_decode($str);
     return (json_last_error() == JSON_ERROR_NONE);
-  }
-
-  /**
-   * Get version information. This simple method requires no authentication.
-   */
-  public function version() {
-    $response = \Httpful\Request::get( $this->api . 'info' )->send();
-    return $response->body->info->version;
   }
 
 }

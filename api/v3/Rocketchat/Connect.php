@@ -25,6 +25,13 @@ function _civicrm_api3_rocketchat_connect_spec(&$spec) {
     'description'  => 'Rocketchat api Arguments, JSON formatted. See https://docs.rocket.chat/api/rest-api/ for more information.\n
                        If none is given, a GET call to the given URL is made',
   );
+  $spec['http_method'] = array(
+    'name'         => 'http_method',
+    'api.required' => 1,
+    'type'         => CRM_Utils_Type::T_LONGTEXT,
+    'title'        => 'HTTP Method',
+    'description'  => 'Specify the http Method. Must be either GET|POST.',
+  );
 }
 
 /**
@@ -40,10 +47,22 @@ function civicrm_api3_rocketchat_connect($params) {
   try {
     // do something here
     $test_connector = new CRM_Rocketchatapi_Rocketchatconnector();
-    if (isset($params['argument'])) {
-      $response = $test_connector->execute($params['api'], $params['argument']);
-    } else {
-      $response = $test_connector->execute($params['api']);
+
+    // Test Code:
+    $test = [
+      'fields' => ['username' => '1', 'id' => '1', 'emails' =>1],
+      'query'  => ['username' => ['$eq' => 'Lucy']],
+    ];
+    switch ($params['http_method']) {
+      case 'GET':
+        $response = $test_connector->execute_get('users.list', $test);
+        break;
+      case 'POST':
+        $arg = json_decode($params['argument'], TRUE);
+        $response = $test_connector->execute_post($params['api'], $params['argument']);
+        break;
+      default:
+        throw new CiviCRM_API3_Exception('Invalid http_method. Must be GET|POST');
     }
   } catch (Exception $e) {
     throw new CiviCRM_API3_Exception($e->getMessage(), $e->getCode());
