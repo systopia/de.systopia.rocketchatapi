@@ -107,7 +107,7 @@ class CRM_Rocketchatapi_Rocketchatconnector {
       throw new Exception("Parameter is is malformed. Not valid json");
     }
 
-    return Request::post($this->api_root . $api)
+    return Request::post($this->api . $api)
       ->body($params)
       ->send();
   }
