@@ -16,7 +16,7 @@
 use CRM_Rocketchatapi_ExtensionUtil as E;
 use Httpful\Request;
 
-include "/../../resources/lib/vendor/bootstrap.php";
+include "/../../vendor/autoload.php";
 
 class CRM_Rocketchatapi_Rocketchatconnector {
 
@@ -35,10 +35,10 @@ class CRM_Rocketchatapi_Rocketchatconnector {
    * @throws Exception
    */
   public function __construct() {
-    if (!file_exists(__DIR__ . '/../../resources/lib/vendor/nategood/httpful/bootstrap.php')) {
+    if (!file_exists(__DIR__ . '/../../vendor/autoload.php')) {
       throw new Exception("Httpful not available. Please go to resources/lib and install via composer");
     }
-    require __DIR__ . '/../../resources/lib/vendor/nategood/httpful/bootstrap.php';
+    require __DIR__ . '/../../vendor/autoload.php';
 
     $config = CRM_Rocketchatapi_Config::singleton();
     $this->api = $config->getSetting('rocketchat_url') . $this->api_root;
